@@ -1,7 +1,7 @@
 {
-  "name": "pwa-shift-manager",
-  "version": "1.0.0",
-  "description": "PWA приложение для управления рабочими сменами",
+  "name": "pwa-shift-manager-debug",
+  "version": "1.0.0-debug",
+  "description": "PWA приложение для управления рабочими сменами - ОТЛАДОЧНАЯ ВЕРСИЯ",
   "main": "index.html",
   "scripts": {
     "start": "npx http-server . -p 3000 -c-1",
