@@ -1,56 +1,112 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Функция очистки PRODUCTION - вызывается до и после DOMContentLoaded
+function removeProductionElements() {
   // Убираем PRODUCTION из заголовка и нормализуем стили
   const appTitle = document.querySelector('.app-title');
   if (appTitle) {
-    // Убираем PRODUCTION из текста
-    if (appTitle.textContent && appTitle.textContent.includes('PRODUCTION')) {
-      appTitle.textContent = appTitle.textContent.replace(/✅\s*Смена\+\s*PRODUCTION/gi, 'Смена+').replace(/PRODUCTION/gi, '').replace(/✅/g, '').trim() || 'Смена+';
+    // Получаем текстовое содержимое
+    let titleText = appTitle.textContent || appTitle.innerText || '';
+    
+    // Убираем PRODUCTION из текста во всех вариантах
+    if (titleText && (titleText.includes('PRODUCTION') || titleText.includes('✅'))) {
+      const cleaned = titleText
+        .replace(/✅/g, '')
+        .replace(/PRODUCTION/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      appTitle.textContent = cleaned || 'Смена+';
     }
-    // Убираем инлайн-стили
+    
+    // Убираем все инлайн-стили и принудительно устанавливаем правильный класс
     appTitle.removeAttribute('style');
+    if (appTitle.className !== 'app-title') {
+      appTitle.className = 'app-title';
+    }
   }
   
   // Убираем зеленый фон из хедера
   const appHeader = document.querySelector('.app-header');
   if (appHeader) {
-    // Удаляем инлайн-стили, чтобы CSS переопределил фон
+    // Удаляем все инлайн-стили
     appHeader.removeAttribute('style');
+    // Принудительно устанавливаем правильный класс
+    if (!appHeader.classList.contains('app-header')) {
+      appHeader.className = 'app-header';
+    }
   }
   
   // Удаляем футер с PRODUCTION если он есть
   const footers = document.querySelectorAll('footer');
   footers.forEach(footer => {
-    if (footer.textContent && footer.textContent.includes('PRODUCTION')) {
+    const footerText = footer.textContent || '';
+    if (footerText.includes('PRODUCTION') || footerText.match(/✅.*PRODUCTION|PRODUCTION.*v\d/gi)) {
       footer.remove();
     }
   });
   
-  // Также ищем и удаляем любые другие элементы с текстом PRODUCTION (кроме диалогов)
-  // Ищем элементы на верхнем уровне body и внутри основных контейнеров
-  const searchContainers = [document.body];
-  searchContainers.forEach(container => {
-    const allElements = container.querySelectorAll('*');
-    allElements.forEach(el => {
-      // Пропускаем скрипты, стили и элементы внутри диалогов
-      if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || 
-          el.closest('dialog') || el.closest('.settings-dialog')) return;
+  // Также ищем и удаляем любые другие элементы с текстом PRODUCTION
+  const allElements = document.querySelectorAll('body *');
+  allElements.forEach(el => {
+    // Пропускаем скрипты, стили и элементы внутри диалогов
+    if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || 
+        el.closest('dialog') || el.closest('.settings-dialog')) return;
+    
+    const text = el.textContent || '';
+    if (text.includes('PRODUCTION')) {
+      // Если это заголовок - очищаем его текст
+      if (el.tagName === 'H1' && el.classList.contains('app-title')) {
+        // Уже обработали выше
+        return;
+      }
       
-      // Пропускаем важные элементы приложения
-      if (el.classList.contains('app-header') || el.classList.contains('app-title') ||
-          el.classList.contains('app-main') || el.id === 'settingsButton' ||
-          el.closest('.app-header') || el.closest('.app-main')) return;
-      
-      // Если элемент содержит только PRODUCTION или PRODUCTION с версией/датой
-      if (el.textContent && el.textContent.includes('PRODUCTION')) {
-        const text = el.textContent.trim();
-        if (text.match(/✅?\s*PRODUCTION\s*(v\d+\.\d+\.\d+)?\s*©?\s*\d{4}?\s*Смена\+?/gi) ||
-            (text === 'PRODUCTION' || text.startsWith('PRODUCTION'))) {
+      // Если это автономный элемент с PRODUCTION - удаляем его
+      if (text.match(/✅?\s*PRODUCTION\s*(v\d+\.\d+\.\d+)?\s*©?\s*\d{4}?\s*Смена\+?/gi) ||
+          text.trim() === 'PRODUCTION' || 
+          text.trim().startsWith('PRODUCTION')) {
+        // Проверяем что это не часть важного контента
+        if (!el.closest('.app-header') && !el.closest('.app-main') && 
+            el.tagName !== 'H1' && !el.id) {
           el.remove();
         }
       }
-    });
+    }
+  });
+}
+
+// Вызываем сразу если DOM уже загружен
+if (document.readyState !== 'loading') {
+  removeProductionElements();
+}
+
+// Вызываем при DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  removeProductionElements();
+  
+  // Наблюдаем за изменениями DOM на случай динамического добавления PRODUCTION
+  const observer = new MutationObserver(() => {
+    removeProductionElements();
   });
   
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style', 'class']
+  });
+  
+  // Дополнительная очистка через задержки для надежности
+  setTimeout(removeProductionElements, 100);
+  setTimeout(removeProductionElements, 500);
+  setTimeout(removeProductionElements, 1000);
+});
+
+// Вызываем после полной загрузки страницы
+window.addEventListener('load', () => {
+  removeProductionElements();
+  setTimeout(removeProductionElements, 200);
+  setTimeout(removeProductionElements, 500);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
   const settingsButton = document.getElementById('settingsButton');
   const settingsDialog = document.getElementById('settingsDialog');
   const closeSettings = document.getElementById('closeSettings');
