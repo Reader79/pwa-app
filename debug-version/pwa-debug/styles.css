@@ -1370,4 +1370,22 @@ button.primary:active, button.secondary:active{
   display: block;
 }
 
+/* Принудительно убираем PRODUCTION и зеленый фон из хедера отладочной версии */
+.app-header {
+  background: var(--gradient-card) !important;
+}
+
+.app-title {
+  background: var(--gradient-primary) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+.app-title::before,
+.app-title::after {
+  content: none !important;
+}
+
 

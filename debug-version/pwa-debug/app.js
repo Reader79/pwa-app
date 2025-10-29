@@ -1,4 +1,56 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Убираем PRODUCTION из заголовка и нормализуем стили
+  const appTitle = document.querySelector('.app-title');
+  if (appTitle) {
+    // Убираем PRODUCTION из текста
+    if (appTitle.textContent && appTitle.textContent.includes('PRODUCTION')) {
+      appTitle.textContent = appTitle.textContent.replace(/✅\s*Смена\+\s*PRODUCTION/gi, 'Смена+').replace(/PRODUCTION/gi, '').replace(/✅/g, '').trim() || 'Смена+';
+    }
+    // Убираем инлайн-стили
+    appTitle.removeAttribute('style');
+  }
+  
+  // Убираем зеленый фон из хедера
+  const appHeader = document.querySelector('.app-header');
+  if (appHeader) {
+    // Удаляем инлайн-стили, чтобы CSS переопределил фон
+    appHeader.removeAttribute('style');
+  }
+  
+  // Удаляем футер с PRODUCTION если он есть
+  const footers = document.querySelectorAll('footer');
+  footers.forEach(footer => {
+    if (footer.textContent && footer.textContent.includes('PRODUCTION')) {
+      footer.remove();
+    }
+  });
+  
+  // Также ищем и удаляем любые другие элементы с текстом PRODUCTION (кроме диалогов)
+  // Ищем элементы на верхнем уровне body и внутри основных контейнеров
+  const searchContainers = [document.body];
+  searchContainers.forEach(container => {
+    const allElements = container.querySelectorAll('*');
+    allElements.forEach(el => {
+      // Пропускаем скрипты, стили и элементы внутри диалогов
+      if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || 
+          el.closest('dialog') || el.closest('.settings-dialog')) return;
+      
+      // Пропускаем важные элементы приложения
+      if (el.classList.contains('app-header') || el.classList.contains('app-title') ||
+          el.classList.contains('app-main') || el.id === 'settingsButton' ||
+          el.closest('.app-header') || el.closest('.app-main')) return;
+      
+      // Если элемент содержит только PRODUCTION или PRODUCTION с версией/датой
+      if (el.textContent && el.textContent.includes('PRODUCTION')) {
+        const text = el.textContent.trim();
+        if (text.match(/✅?\s*PRODUCTION\s*(v\d+\.\d+\.\d+)?\s*©?\s*\d{4}?\s*Смена\+?/gi) ||
+            (text === 'PRODUCTION' || text.startsWith('PRODUCTION'))) {
+          el.remove();
+        }
+      }
+    });
+  });
+  
   const settingsButton = document.getElementById('settingsButton');
   const settingsDialog = document.getElementById('settingsDialog');
   const closeSettings = document.getElementById('closeSettings');

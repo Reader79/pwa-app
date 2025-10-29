@@ -4,12 +4,12 @@ const PRECACHE = `precache-${CACHE_VERSION}`;
 
 // Предкешируем «оболочку» приложения
 const ASSETS = [
-  '/pwa-app/',
-  '/pwa-app/index.html',
-  '/pwa-app/styles.css',
-  '/pwa-app/app.js',
-  '/pwa-app/manifest.webmanifest',
-  '/pwa-app/assets/icons/icon.svg'
+  '/pwa-app-debug/',
+  '/pwa-app-debug/index.html',
+  '/pwa-app-debug/styles.css',
+  '/pwa-app-debug/app.js',
+  '/pwa-app-debug/manifest.webmanifest',
+  '/pwa-app-debug/assets/icons/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -80,7 +80,7 @@ self.addEventListener('fetch', (event) => {
         return response;
       } catch {
         const cache = await caches.open(PRECACHE);
-        return (await cache.match('/pwa-app/index.html')) || Response.error();
+        return (await cache.match('/pwa-app-debug/index.html')) || Response.error();
       }
     })());
     return;
