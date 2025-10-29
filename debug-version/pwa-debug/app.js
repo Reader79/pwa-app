@@ -34,39 +34,61 @@ function removeProductionElements() {
     }
   }
   
-  // Удаляем футер с PRODUCTION если он есть
+  // Удаляем ВСЕ элементы с PRODUCTION, включая <p>, <div>, <footer> и любые другие
+  // Сначала удаляем все элементы <p> с PRODUCTION
+  const allParagraphs = document.querySelectorAll('p');
+  allParagraphs.forEach(p => {
+    const text = p.textContent || p.innerText || '';
+    const style = p.getAttribute('style') || '';
+    
+    // Проверяем текст и стили
+    if (text.includes('PRODUCTION') || text.includes('✅') || 
+        (style.includes('text-shadow') && style.includes('font-weight') && text.includes('v1.0.0'))) {
+      // Сначала скрываем, потом удаляем
+      p.classList.add('production-hidden');
+      p.setAttribute('data-production-removed', 'true');
+      p.style.display = 'none';
+      p.remove();
+    }
+  });
+  
+  // Удаляем все футеры с PRODUCTION
   const footers = document.querySelectorAll('footer');
   footers.forEach(footer => {
-    const footerText = footer.textContent || '';
-    if (footerText.includes('PRODUCTION') || footerText.match(/✅.*PRODUCTION|PRODUCTION.*v\d/gi)) {
+    const footerText = footer.textContent || footer.innerText || '';
+    if (footerText.includes('PRODUCTION') || footerText.match(/✅.*PRODUCTION|PRODUCTION.*v\d|PRODUCTION.*©/gi)) {
       footer.remove();
     }
   });
   
-  // Также ищем и удаляем любые другие элементы с текстом PRODUCTION
+  // АГРЕССИВНО удаляем ВСЕ элементы с PRODUCTION независимо от тега и местоположения
   const allElements = document.querySelectorAll('body *');
   allElements.forEach(el => {
-    // Пропускаем скрипты, стили и элементы внутри диалогов
+    // Пропускаем только скрипты, стили и элементы внутри диалогов
     if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || 
         el.closest('dialog') || el.closest('.settings-dialog')) return;
     
-    const text = el.textContent || '';
-    if (text.includes('PRODUCTION')) {
-      // Если это заголовок - очищаем его текст
+    const text = el.textContent || el.innerText || '';
+    if (text && (text.includes('PRODUCTION') || text.includes('✅'))) {
+      // Для заголовка H1 с классом app-title - только очищаем текст, не удаляем
       if (el.tagName === 'H1' && el.classList.contains('app-title')) {
         // Уже обработали выше
         return;
       }
       
-      // Если это автономный элемент с PRODUCTION - удаляем его
+      // ВСЕ остальные элементы с PRODUCTION - УДАЛЯЕМ БЕЗ ИСКЛЮЧЕНИЙ
+      // Проверяем паттерны PRODUCTION
       if (text.match(/✅?\s*PRODUCTION\s*(v\d+\.\d+\.\d+)?\s*©?\s*\d{4}?\s*Смена\+?/gi) ||
+          text.match(/PRODUCTION\s*v\d+\.\d+\.\d+/gi) ||
           text.trim() === 'PRODUCTION' || 
-          text.trim().startsWith('PRODUCTION')) {
-        // Проверяем что это не часть важного контента
-        if (!el.closest('.app-header') && !el.closest('.app-main') && 
-            el.tagName !== 'H1' && !el.id) {
-          el.remove();
-        }
+          text.trim().startsWith('PRODUCTION') ||
+          (text.includes('PRODUCTION') && text.includes('v1.0.0')) ||
+          (text.includes('PRODUCTION') && text.includes('©'))) {
+        // Сначала скрываем, потом удаляем
+        el.classList.add('production-hidden');
+        el.setAttribute('data-production-removed', 'true');
+        el.style.display = 'none';
+        el.remove();
       }
     }
   });
@@ -94,9 +116,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   // Дополнительная очистка через задержки для надежности
+  setTimeout(removeProductionElements, 50);
   setTimeout(removeProductionElements, 100);
+  setTimeout(removeProductionElements, 200);
   setTimeout(removeProductionElements, 500);
   setTimeout(removeProductionElements, 1000);
+  setTimeout(removeProductionElements, 2000);
 });
 
 // Вызываем после полной загрузки страницы

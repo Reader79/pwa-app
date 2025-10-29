@@ -1388,4 +1388,25 @@ button.primary:active, button.secondary:active{
   content: none !important;
 }
 
+/* Класс для принудительного скрытия элементов с PRODUCTION (добавляется через JS) */
+.production-hidden,
+[data-production-removed] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  font-size: 0 !important;
+}
+
+/* Скрываем элементы <p> с подозрительными инлайн-стилями (которые могут содержать PRODUCTION) */
+p[style*="text-shadow"][style*="font-weight"] {
+  /* JS удалит их, но для безопасности */
+  display: none !important;
+}
+
 
