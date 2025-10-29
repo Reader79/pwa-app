@@ -1403,10 +1403,26 @@ button.primary:active, button.secondary:active{
   font-size: 0 !important;
 }
 
-/* Скрываем элементы <p> с подозрительными инлайн-стилями (которые могут содержать PRODUCTION) */
-p[style*="text-shadow"][style*="font-weight"] {
-  /* JS удалит их, но для безопасности */
+/* АГРЕССИВНО скрываем элементы <p> с подозрительными инлайн-стилями ДО выполнения JS */
+p[style*="text-shadow"],
+p[style*="font-weight"][style*="text-shadow"],
+p[style*="margin: 0"][style*="font-weight"],
+body > p,
+header + p,
+main + p {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Универсальное правило: скрываем все <p> на верхнем уровне body, если они имеют определенные стили */
+body > p[style] {
+  /* JS будет проверять их, но на всякий случай скрываем */
 }
 
 

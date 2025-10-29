@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v64'; // ФИНАЛЬНОЕ обновление: агрессивное удаление всех элементов <p> и других с PRODUCTION
+const CACHE_VERSION = 'v65'; // ВСТРОЕННЫЙ скрипт в <head> для немедленного удаления PRODUCTION
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const PRECACHE = `precache-${CACHE_VERSION}`;
 

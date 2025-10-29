@@ -18,6 +18,78 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
+    <!-- КРИТИЧЕСКИЙ СКРИПТ: удаление PRODUCTION ДО загрузки DOM -->
+    <script>
+      // НЕМЕДЛЕННОЕ удаление PRODUCTION - выполняется как можно раньше
+      (function() {
+        'use strict';
+        function aggressiveRemoveProduction() {
+          // Удаляем все элементы <p> с PRODUCTION
+          const allP = document.querySelectorAll('p');
+          allP.forEach(function(p) {
+            var text = (p.textContent || p.innerText || '').toUpperCase();
+            var style = (p.getAttribute('style') || '');
+            if (text.indexOf('PRODUCTION') !== -1 || text.indexOf('✅') !== -1 || 
+                (style.indexOf('text-shadow') !== -1 && style.indexOf('font-weight') !== -1)) {
+              p.style.display = 'none';
+              p.style.visibility = 'hidden';
+              p.style.opacity = '0';
+              p.style.height = '0';
+              p.style.margin = '0';
+              p.style.padding = '0';
+              p.remove();
+            }
+          });
+          
+          // Удаляем все элементы с PRODUCTION в тексте
+          var allElements = document.querySelectorAll('body *');
+          for (var i = 0; i < allElements.length; i++) {
+            var el = allElements[i];
+            if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') continue;
+            var txt = (el.textContent || el.innerText || '').toUpperCase();
+            if (txt.indexOf('PRODUCTION') !== -1 && el.tagName !== 'H1') {
+              el.style.display = 'none';
+              el.remove();
+            }
+          }
+          
+          // Удаляем PRODUCTION из заголовка
+          var title = document.querySelector('.app-title');
+          if (title) {
+            var titleText = title.textContent || '';
+            if (titleText.indexOf('PRODUCTION') !== -1 || titleText.indexOf('✅') !== -1) {
+              title.textContent = 'Смена+';
+            }
+            title.removeAttribute('style');
+          }
+          
+          // Убираем инлайн-стили из хедера
+          var header = document.querySelector('.app-header');
+          if (header) {
+            header.removeAttribute('style');
+          }
+        }
+        
+        // Запускаем сразу, если DOM готов
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', aggressiveRemoveProduction);
+        } else {
+          aggressiveRemoveProduction();
+        }
+        
+        // Запускаем с интервалом для надежности
+        setTimeout(aggressiveRemoveProduction, 0);
+        setTimeout(aggressiveRemoveProduction, 10);
+        setTimeout(aggressiveRemoveProduction, 50);
+        setTimeout(aggressiveRemoveProduction, 100);
+        
+        // Наблюдатель за изменениями
+        if (document.body) {
+          var observer = new MutationObserver(aggressiveRemoveProduction);
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+      })();
+    </script>
   </head>
   <body>
     <header class="app-header">
